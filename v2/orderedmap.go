@@ -1,5 +1,10 @@
 package orderedmap
 
+import (
+	"bytes"
+	"encoding/json"
+)
+
 type OrderedMap[K comparable, V any] struct {
 	kv map[K]*Element[K, V]
 	ll list[K, V]
@@ -106,4 +111,38 @@ func (m *OrderedMap[K, V]) Copy() *OrderedMap[K, V] {
 		m2.Set(el.Key, el.Value)
 	}
 	return m2
+}
+
+func (m *OrderedMap[string, V]) MarshalJSON() ([]byte, error) {
+	if m.Len() == 0 {
+		return []byte("{}"), nil
+	}
+
+	var buf bytes.Buffer
+	encoder := json.NewEncoder(&buf)
+
+	buf.WriteByte('{')
+
+	i := 0
+	for el := m.Front(); el != nil; el = el.Next() {
+		if i > 0 {
+			buf.WriteByte(',')
+		}
+
+		if err := encoder.Encode(el.Key); err != nil {
+			return nil, err
+		}
+
+		buf.WriteByte(':')
+
+		if err := encoder.Encode(el.Value); err != nil {
+			return nil, err
+		}
+
+		i++
+	}
+
+	buf.WriteByte('}')
+
+	return buf.Bytes(), nil
 }

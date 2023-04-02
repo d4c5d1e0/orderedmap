@@ -1,4 +1,4 @@
-module github.com/elliotchance/orderedmap
+module github.com/d4c5d1e0/orderedmap
 
 go 1.12
 
